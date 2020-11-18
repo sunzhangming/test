@@ -1,0 +1,32 @@
+工作中代码中访问数据库连接的时候，代码运行中出现了"Too many connections" 的错误：
+
+如：
+
+MySQL "Too many connections"
+    com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Data source rejected establishment of connection,  message from server: "Too many connections"
+    
+其中原因之一是因为，当程序运行过程中，当前数据连接数超过了可用连接数的时候，就会报错"Too many connections"错误
+
+解决这个错误：
+
+1 首先当然是查看代码，是否在获取数据库连接，访问完数据库之后没有及时关闭数据库连接，释放资源。
+
+2 查看数据库连接进程等待结束时间是多少？如果数据库需要自动释放连接的情况下，就需要修改等待结束时间，Mysq默认是28800，也就是8个小时，默认8个小时之后断开数据库连接，需要再次重连
+
+查看等待时间：
+
+show global variables like 'wait_timeout';
+
+修改：
+
+set global wait_timeout=600;
+
+3 代码没有问题之后，就查看数据库的连接数设置，Mysql默认是100，以及增大数据库最大连接数：
+
+查看：
+
+SHOW VARIABLES LIKE '%max_con%';
+
+修改：
+
+SET GLOBAL max_connections = 1000;
